@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Jedi Seeks Movie</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="style/cinemajQuery.css">
+    <link rel="stylesheet" href="style/materialize.css">
+</head>
+<body>
+    <div class="absolute"><img src="images/rebel.jpg" alt="" class="rebel"></div>
+    <div class="absolute2"><img src="images/rebel.jpg" alt="" class="rebel"></div>
+    <div class="row center Main container">
+        
+        
+        <input class="col s12 center" type="text" id="input" value="Choose a movie name my young Padawan">
+        <div class="col s12 center">
+            <button class="bton waves-effect waves-teal center">Envoyer</button>
+        </div>
+        <div class="laser" id="laser"></div>
+    
+    </div>
+    <article class="container row Sub center s" id="container">
+        <div class="affiche col s12" id="affiche"></div>
+        <div class="affichedeux col s12" id="afficheDeux"></div>
+    </article>
+    
+
+
+    <script text="text/javascript">
+
+$(document).ready(function(){
+    
+    $('#input').click(function(){
+        $('#input').val('');
+    })
+
+    $('button').click(function(){
+        
+        let choix = $('#input').val();
+        
+        setTimeout(function(){
+                $('#laser').animate({ 
+                    width:'100%',
+                }, 2000 );
+            },500);
+    
+        $.ajax({ ///////First AJAX CALL///////
+            
+            url:'http://www.omdbapi.com/?s='+choix+'&apikey=103f1840',
+            dataType:'json',
+            success:function(response){
+
+                if (response.Response == "False"){
+                    $('.affichedeux').append(response.Error);
+                    };
+                
+                let leng = response.Search.length;
+                let i=0;
+
+                for (i;i<leng;i++){
+
+                    let title = $('<p> </p>').html(
+                        response.Search[i].Title,
+                        ).appendTo('#affiche');
+                        
+                    let img = $('<img />').attr({
+                        'src': response.Search[i].Poster,
+                        'title': response.Search[i].Title,
+                        'width':140,
+                        'id':response.Search[i].imdbID,
+                        'height':200
+                    }).appendTo('#affiche');
+
+                }
+                    setTimeout(function(){
+                        $('article').hide();   //fadeIn & fadeOut
+                        },0);
+                    setTimeout(function(){
+                        $('article').fadeIn(4000);   //fadeIn & fadeOut
+                        },1500);
+
+
+                $('img').click(function(event){
+                    
+                    let datakey = event.target.id;
+                    console.log(datakey);
+
+                    setTimeout(function(){
+                        $('#laser').animate({ 
+                            width:'10%',
+                        }, 2000 );
+                    },500);
+
+                    $('#laser').addClass('red');
+                    
+
+                    $.ajax({                ///Second AJAX call////
+                        url:'http://www.omdbapi.com/?i='+datakey+'&apikey=103f1840',
+                        dataType:'json',
+                        success:function(response){
+                            console.log(response);
+                            $('#affiche').hide();
+                            $('#afficheDeux').html('Released in '+response.Released+'<br>');
+                            $('#afficheDeux').append('A '+ response.Genre+' movie.<br>');
+                            $('#afficheDeux').append('<br> The cast : '+response.Actors);
+                            $('#afficheDeux').append('<br>By '+response.Director+'<br>');
+                            $('#afficheDeux').append('<br>Once upon a time... '+response.Plot+'<br>');
+
+                            $('input').val(response.Title); 
+
+                            setTimeout(function(){
+                                $('#afficheDeux').hide();   //fadeIn & fadeOut
+                                },0);
+                            
+                            setTimeout(function(){
+                                $('#afficheDeux').fadeIn(4000);   //fadeIn & fadeOut
+                                },2000);
+
+                            setTimeout(function(){
+                                    $('body, html').animate({
+                                        scrollTop:'1000px'
+                                    },12000);
+                                },4000);
+                        }
+                    });
+                });
+            }
+        });
+    })
+})
+    </script>
+</body>
+</html>
